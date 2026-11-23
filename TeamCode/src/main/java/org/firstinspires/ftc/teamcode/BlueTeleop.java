@@ -1,6 +1,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -8,8 +9,10 @@ import org.firstinspires.ftc.teamcode.robotsystems.Flywheel2;
 import org.firstinspires.ftc.teamcode.robotsystems.Intake;
 import org.firstinspires.ftc.teamcode.robotsystems.MecanumDrive;
 
+@Disabled
 @TeleOp(name = "Blue Teleop")
 public class BlueTeleop extends OpMode {
+
 
     // Subsystems
     MecanumDrive drive = new MecanumDrive();

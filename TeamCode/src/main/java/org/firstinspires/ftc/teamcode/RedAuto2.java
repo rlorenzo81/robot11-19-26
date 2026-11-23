@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.turrettracking;
+
+package org.firstinspires.ftc.teamcode;
+
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.OpModeStorage;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.robotsystems.Flywheel2;
 import org.firstinspires.ftc.teamcode.robotsystems.Intake;
@@ -16,28 +16,23 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.ivy.Command;
 
-import static com.pedropathing.api.Paths.*;
-        import static com.pedropathing.ivy.Scheduler.schedule;
-import static com.pedropathing.ivy.pedro.PedroCommands.follow;
-import static com.pedropathing.ivy.groups.Groups.sequential;
-import static com.pedropathing.ivy.groups.Groups.race;
-import static com.pedropathing.ivy.commands.Commands.waitMs;
-
-import static com.pedropathing.ivy.commands.Commands.*;
-
-        import static java.lang.invoke.MethodHandles.constant;
-
 import com.pedropathing.paths.Path;
 
+import static com.pedropathing.api.Paths.*;
+import static com.pedropathing.ivy.Scheduler.schedule;
+import static com.pedropathing.ivy.pedro.PedroCommands.*;
+import static com.pedropathing.ivy.groups.Groups.sequential;
+import static com.pedropathing.ivy.groups.Groups.race;
+import static com.pedropathing.ivy.commands.Commands.*;
 
-@Autonomous(name = "RedAuto2")
+@Autonomous(name = "RedV2")
 public class RedAuto2 extends OpMode {
 
     private Follower follower;
-    Intake intake = new Intake();
-    Flywheel2 fly = new Flywheel2();
 
-    Pollinator pollinator = new Pollinator();
+    private final Intake intake = new Intake();
+    private final Flywheel2 fly = new Flywheel2();
+    private final Pollinator pollinator = new Pollinator();
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
@@ -45,15 +40,38 @@ public class RedAuto2 extends OpMode {
     // POSES
     // =========================
 
-    private final Pose startPose = poseFactory.of(61, 0, 90);
-    private final Pose scorePose = poseFactory.of(61, 5, 90);
-    private final Pose collectPose = poseFactory.of(26, 4, 180);
-    private final Pose collectPF = poseFactory.of(13.5, 0.8, 182.5);
+    private final Pose startPose =
+            poseFactory.of(61.2601, 9.6004, 90);
 
-    private final Pose controlPose = poseFactory.of(50, 40, 280);
-    private final Pose scoreAgainPose = poseFactory.of(25, 120, 315);
-   private final Pose collectflowerpose = poseFactory.of(30, 48, 180);
-    private final Pose parkPose = poseFactory.of(15, 120, 315);
+    private final Pose scorePose =
+            poseFactory.of(61.3816, 12.8954, 180);
+
+    private final Pose collectPF =
+            poseFactory.of(9, 10, 270);
+
+    private final Pose collectcontrolpose =
+            poseFactory.of(33.57, 56.47, 90);
+
+    private final Pose controlPose =
+            poseFactory.of(59.4785, 49.6321, 0);
+
+    private final Pose scoreAgainPose =
+            poseFactory.of(16.4106, 128.8614, 318);
+
+    private final Pose collectflowerpose =
+            poseFactory.of(32.9636, 46.9191, 180);
+
+    private final Pose collectflowerinpose =
+            poseFactory.of(13.0779, 46.6927, -179.3789);
+
+    private final Pose scoreflowerpose =
+            poseFactory.of(15.9437, 129.1437, 319);
+
+    private final Pose controlpose2 =
+            poseFactory.of(50.15, 42.87, 319);
+
+    private final Pose parkPose =
+            poseFactory.of(17, 110.2678, 270);
 
     // =========================
     // PATHS
@@ -64,41 +82,54 @@ public class RedAuto2 extends OpMode {
                 .linear(startPose, scorePose);
     }
 
-    private Path collectPath() {
-        return line(scorePose, collectPose)
-                .linear(scorePose, collectPose);
-    }
-
-    private Path collectFP() {
-        return line(collectPose, collectPF)
-                .linear(collectPose, collectPF)
-                .with(
-                        Constants.foresightConfig.maxDecelerationScale.at(0.1),
-                        Constants.foresightConfig.brakeAggression.at(0.8)
-                );
-    }
-
     private Path collectFP2() {
-        return line(collectPose, collectPF)
-                .linear(collectPose, collectPF)
+        return curve(scorePose, collectcontrolpose, collectPF)
+                .linear(scorePose, collectPF)
                 .with(
-                        Constants.foresightConfig.maxDecelerationScale.at(0.1),
+                        Constants.foresightConfig.maxPathSpeed.at(0.2),
+                        Constants.foresightConfig.maxDecelerationScale.at(0.03),
                         Constants.foresightConfig.brakeAggression.at(0.8)
                 );
     }
 
     private Path scoreAgainPath() {
-        return curve(collectPF,controlPose, scoreAgainPose)
+        return curve(
+                collectPF,
+                controlPose,
+                scoreAgainPose
+        )
                 .linear(collectPF, scoreAgainPose);
     }
+
     private Path flowerPath() {
         return line(scoreAgainPose, collectflowerpose)
                 .linear(scoreAgainPose, collectflowerpose);
     }
 
+    private Path flowerinPath() {
+        return line(
+                collectflowerpose,
+                collectflowerinpose
+        )
+                .linear(collectflowerpose, collectflowerinpose)
+                .with(
+                        Constants.foresightConfig.maxDecelerationScale.at(0.05),
+                        Constants.foresightConfig.brakeAggression.at(0.8)
+                );
+    }
+
+    private Path scoreflowerpath() {
+        return curve(
+                collectflowerinpose,
+                controlpose2,
+                scoreflowerpose
+        )
+                .linear(collectflowerinpose, scoreflowerpose);
+    }
+
     private Path park() {
-        return line(collectflowerpose, parkPose)
-                .linear(collectflowerpose, parkPose);
+        return line(scoreflowerpose, parkPose)
+                .linear(scoreflowerpose, parkPose);
     }
 
     // =========================
@@ -113,54 +144,120 @@ public class RedAuto2 extends OpMode {
     }
 
     // =========================
+    // DISTANCE TO COLLECT
+    // =========================
+
+    private double distanceToCollect() {
+        return Math.hypot(
+                follower.pose().x() - collectPF.x(),
+                follower.pose().y() - collectPF.y()
+        );
+    }
+
+    // =========================
+    // COLLECT FP2 CORREGIDO
+    // =========================
+
+    private Command followCollectComplete() {
+        return sequential(
+
+                // Seguir la curva original sin timeout
+                follow(follower, collectFP2()),
+
+                // Corregir hasta llegar a (9, 10)
+                // Tolerancia: 1 pulgada
+                race(
+                        hold(follower, collectPF),
+
+                        waitUntil(() ->
+                                distanceToCollect() <= 1.0
+                        )
+                ),
+
+                // Mantener la posicion durante
+                // medio segundo (500 ms)
+                race(
+                        hold(follower, collectPF),
+                        waitMs(500)
+                )
+        );
+    }
+
+    // =========================
     // AUTONOMOUS ROUTINE
     // =========================
 
     private Command autoRoutine() {
         return sequential(
+
+                // PRELOAD SHOOT
                 instant(() -> fly.setTargetRPM(2325)),
-                waitMs(3500),
+                waitMs(2500),
+
                 instant(() -> intake.intakeShoot()),
                 waitMs(1500),
 
-                // Ir al primer SCORE
+                // PRIMER SCORE
                 followTimeout(startToScore(), 1000),
 
                 instant(() -> intake.intakeDontShoot()),
                 instant(() -> fly.setTargetRPM(2500)),
 
-                // Ir a COLLECT
-                followTimeout(collectPath(), 1000),
+                // =========================
+                // COLLECT FP2
+                // =========================
 
-                followTimeout(collectFP(), 1000),
+                // Llegar a (9, 10), mantener
+                // posicion 500 ms y continuar
+                followCollectComplete(),
 
-                followTimeout(collectFP2(), 1000),
+                // SEGUNDO SCORE
+                instant(() -> fly.setTargetRPM(2400)),
 
-                // Regresar al segundo SCORE
-                followTimeout(scoreAgainPath(), 1000),
+                follow(follower, scoreAgainPath()),
 
-                waitMs(1000),
-
+                waitMs(1250),
                 instant(() -> intake.intakeShoot()),
-                waitMs(1500),
+                waitMs(1250),
+
+                // FLOWER COLLECTION
+                followTimeout(flowerPath(), 1000),
+
+                instant(() -> pollinator.pollinatorDown()),
                 instant(() -> intake.intakeDontShoot()),
-followTimeout(flowerPath(), 1000),
+
+                followTimeout(flowerinPath(), 1000),
+
+                waitMs(2000),
+                instant(() -> fly.setTargetRPM(2400)),
+
+                // FLOWER SCORE
+                follow(follower, scoreflowerpath()),
+
+                waitMs(1250),
                 instant(() -> intake.intakeShoot()),
+                waitMs(1300),
 
-                // Ir a PARK
-                followTimeout(park(), 1000),
-                instant(() -> intake.intakeDontShoot())
+                instant(() -> pollinator.pollinatorUp()),
 
+                // PARK
+                instant(() -> intake.intakeDontShoot()),
+
+                followTimeout(park(), 1000)
         );
     }
 
-
+    // =========================
+    // INIT
+    // =========================
 
     @Override
     public void init() {
+
         fly.init(hardwareMap);
         intake.init(hardwareMap);
         pollinator.init(hardwareMap);
+
         Scheduler.reset();
 
         follower = Constants.create(hardwareMap);
@@ -172,16 +269,21 @@ followTimeout(flowerPath(), 1000),
         telemetry.update();
     }
 
+    // =========================
+    // START
+    // =========================
 
     @Override
     public void start() {
         schedule(autoRoutine());
     }
 
+    // =========================
+    // LOOP
+    // =========================
+
     @Override
     public void loop() {
-
-        //fly.setTargetRPM(2325);//was2450
 
         follower.update();
 
@@ -208,6 +310,17 @@ followTimeout(flowerPath(), 1000),
         telemetry.addData(
                 "Distance Remaining",
                 follower.remainingDistance()
+        );
+
+        // Telemetria del punto collectPF
+        telemetry.addData(
+                "Distance to Collect",
+                distanceToCollect()
+        );
+
+        telemetry.addData(
+                "Following",
+                follower.following()
         );
 
         telemetry.update();

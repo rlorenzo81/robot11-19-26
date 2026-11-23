@@ -13,19 +13,19 @@ public class Pollinator {
         leftPollinator= hwMap.get(Servo.class, "lp");
         rightPollinator= hwMap.get(Servo.class, "rp");
 
-      leftPollinator.setPosition(0.5);
-      rightPollinator.setPosition(0.5);
+      leftPollinator.setPosition(0.6);
+      rightPollinator.setPosition(0.4);
     }
 
     public void pollinatorDown(){
-        leftPollinator.setPosition(0.25);
-        rightPollinator.setPosition(0.75);
+        leftPollinator.setPosition(0.2);
+        rightPollinator.setPosition(0.8);
 
     }
 
     public void pollinatorUp(){
-        leftPollinator.setPosition(0.5);
-        rightPollinator.setPosition(0.5);
+        leftPollinator.setPosition(0.6);
+        rightPollinator.setPosition(0.4);
 
     }
 }

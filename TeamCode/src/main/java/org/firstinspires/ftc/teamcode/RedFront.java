@@ -38,24 +38,35 @@ public class RedFront extends OpMode {
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
     // POSES - COORDENADAS
-    private final Pose startPose = poseFactory.of(61.2601, 9.6004, 90);
-    private final Pose scorePose = poseFactory.of(61.3816, 12.8954, 180);
-    private final Pose collectPose = poseFactory.of(26, 10, 180);
+    private final Pose startPose = poseFactory.of(61, 132, 270);
+    private final Pose collectflowerpose = poseFactory.of(44, 110, 90);
+    private final Pose collectflowerinpose = poseFactory.of(44, 123, 90);
+
+    private final Pose controlpose = poseFactory.of(42, 81, 90);
+    private final Pose scoreflowerpose = poseFactory.of(61, 132, 270);
+
     private final Pose parkPose = poseFactory.of(17, 110.2678, 270);
 
     // PATHS
 
     private Path startToScore() {
-        return line(startPose, scorePose)
-                .linear(startPose, scorePose);
+        return curve(startPose,controlpose,collectflowerpose)
+                .linear(startPose, collectflowerpose)
+              ;
     }
-    private Path collectPath() {
-        return line(scorePose, collectPose)
-                .linear(scorePose, collectPose);
+    private Path scoreflowerinpath(){
+        return line (collectflowerpose,collectflowerinpose)
+                .linear(collectflowerpose,collectflowerinpose)
+                .with(
+                        Constants.foresightConfig.maxDecelerationScale.at(0.1),
+                        Constants.foresightConfig.brakeAggression.at(0.8));
+
     }
-    //private Path collectFP() {
-    //   return line(collectPose, collectPF)
-    // .linear(collectPose, collectPF)
+
+
+    private Path scoreflowerpath() {
+       return curve(collectflowerpose,controlpose, scoreflowerpose)
+             .linear(collectflowerpose, scoreflowerpose);}
     // .with(
     //          Constants.foresightConfig.maxDecelerationScale.at(0.1),
     //         Constants.foresightConfig.brakeAggression.at(0.8)
@@ -63,8 +74,8 @@ public class RedFront extends OpMode {
     // }
 
     private Path park() {
-        return line(collectPose, parkPose)
-                .linear(collectPose, parkPose);
+        return curve(scoreflowerpose,controlpose, parkPose)
+                .linear(scoreflowerpose, parkPose);
     }
 
     // =========================
@@ -84,21 +95,30 @@ public class RedFront extends OpMode {
         return sequential(
 
                 instant(() -> fly.setTargetRPM(2325)),
-                waitMs(2500), //3000
+                waitMs(10000), //3000
                 instant(() -> intake.intakeShoot()),
                 waitMs(1500),
 
                 // Ir al primer SCORE
-                followTimeout(startToScore(), 1000),
+                followTimeout(startToScore(), 5000),
+
                 instant(() -> intake.intakeDontShoot()),
-                instant(() -> fly.setTargetRPM(2500)),
+                instant(() -> fly.setTargetRPM(2325)),
+                instant(() -> pollinator.pollinatorDown()),
+                followTimeout(scoreflowerinpath(), 1500),
 
-                // Ir a COLLECT
-                followTimeout(collectPath(), 1000),
 
-                //  followTimeout(collectFP(), 1000),
 
-                followTimeout(park(), 1000));
+                 followTimeout(scoreflowerpath(), 4000),
+
+                instant(() -> pollinator.pollinatorUp()),
+                instant(() -> intake.intakeShoot()),
+
+                waitMs(2000),
+                //instant(() -> pollinator.pollinatorDown()),
+
+
+                followTimeout(park(), 2000));
     }
 
     // =========================

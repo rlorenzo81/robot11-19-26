@@ -1,19 +1,20 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.robotsystems.Flywheel2;
 import org.firstinspires.ftc.teamcode.robotsystems.Intake;
-import org.firstinspires.ftc.teamcode.robotsystems.MecanumDrive;
+import org.firstinspires.ftc.teamcode.robotsystems.MecanumDrive3;
 import org.firstinspires.ftc.teamcode.robotsystems.Pollinator;
-
+@Disabled
 @TeleOp(name = "Red Teleop")
 public class RedTeleop extends OpMode {
 
     // Subsystems
-    MecanumDrive drive = new MecanumDrive();
+    MecanumDrive3 drive = new MecanumDrive3();
     Flywheel2 fly = new Flywheel2();
     Intake intake = new Intake();
     Pollinator pollinate =new Pollinator();

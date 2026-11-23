@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.OpModeStorage;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.robotsystems.Flywheel2;
 import org.firstinspires.ftc.teamcode.robotsystems.Intake;
+import org.firstinspires.ftc.teamcode.robotsystems.Pollinator;
 
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
@@ -36,6 +37,8 @@ public class ExampleAuto extends OpMode {
     private Follower follower;
     Intake intake = new Intake();
     Flywheel2 fly = new Flywheel2();
+
+    Pollinator pollinator = new Pollinator();
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
@@ -117,7 +120,7 @@ public class ExampleAuto extends OpMode {
                 waitMs(1500),
 
                 // Ir al primer SCORE
-                followTimeout(startToScore(), 3000),
+                followTimeout(startToScore(), 1000),
 
                 instant(() -> intake.intakeDontShoot()),
                 instant(() -> fly.setTargetRPM(2500)),
@@ -138,7 +141,7 @@ public class ExampleAuto extends OpMode {
                 waitMs(1500),
 
                 // Ir a PARK
-                followTimeout(park(), 4000),
+                followTimeout(park(), 1000),
                 instant(() -> intake.intakeDontShoot())
 
                 );
@@ -150,7 +153,7 @@ public class ExampleAuto extends OpMode {
     public void init() {
         fly.init(hardwareMap);
         intake.init(hardwareMap);
-
+        pollinator.init(hardwareMap);
         Scheduler.reset();
 
         follower = Constants.create(hardwareMap);
